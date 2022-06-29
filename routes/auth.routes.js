@@ -16,6 +16,16 @@ router.post("/signup", (req, res, next) => {
   //console.log("The form data: ", req.body);
   const { username, password } = req.body;
 
+
+ if (!username || !password) {
+   res.render("auth/signup", {
+     errorMessage:
+       "All fields are mandatory. Please provide your username, email and password.",
+   });
+   return;
+ }
+
+
   bcryptjs
     .genSalt(saltRounds)
     .then(salt => bcryptjs.hash(password, salt))
@@ -34,6 +44,37 @@ router.post("/signup", (req, res, next) => {
 
 router.get("/userProfile", (req, res) => res.render("users/user-profile"));
 
+
+router.get("/login", (req, res) => res.render("auth/login"));
+
+router.post("/login", (req, res, next) => {
+  const { username, password } = req.body;
+console.log(username, "username");
+  if (username === "" || password === "") {
+    res.render("auth/login", {
+      errorMessage: "Please enter both, username and password to login.",
+    });
+    return;
+  }
+
+  User.findOne({ username })
+  
+    .then(user => {
+        console.log(user);
+      if (!user) {
+        res.render("auth/login", {
+          errorMessage: "Username is not registered. Try with other Username.",
+        });
+        return;
+      } else if (bcryptjs.compareSync(password, user.passwordHash)) {
+        res.render("users/user-profile", { user });
+      } else {
+        res.render("auth/login", { errorMessage: "Incorrect password." });
+      }
+    })
+    .catch(error => next(error));
+});
+ 
 
 
 module.exports = router;
