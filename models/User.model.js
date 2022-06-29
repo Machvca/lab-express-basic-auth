@@ -13,10 +13,10 @@ const userSchema = new Schema({
     required: [true, "Password is required."],
   },
     
-  {
-    timestamps: true
-  },
-})
+  
+
+  
+});
 
 const User = model("User", userSchema);
 
